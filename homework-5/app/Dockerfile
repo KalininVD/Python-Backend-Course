@@ -1,14 +1,13 @@
 FROM python:3.11
 
-ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 RUN python -m venv /venv
-RUN /venv/bin/pip install --upgrade pip
+ENV PATH="/venv/bin:$PATH"
 
 COPY . /app/
 
-RUN /venv/bin/pip install -r requirements.txt
-ENV PATH="/venv/bin:$PATH"
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
 CMD ["sh", "start.sh"]
