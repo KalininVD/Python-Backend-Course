@@ -57,7 +57,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("username", "email", "password", )
+        fields = ("id", "username", "email", "password", )
         ref_name = None
 
     def update(self, instance, validated_data):
@@ -72,19 +72,39 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 # Post model serializer (for CRUD operations)
 class PostSerializer(serializers.ModelSerializer):
     likes = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=User.objects.all()
+        many=True, queryset=User.objects.all(), required=False,
     )
 
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ('author', 'title', 'content', 'likes', 'created_at', 'updated_at', )
+
+    def create(self, validated_data):
+        validated_data.pop('likes', None)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data.pop('likes', None)
+        return super().update(instance, validated_data)
 
 # Comment model serializer (for CRUD operations)
 class CommentSerializer(serializers.ModelSerializer):
+    post = serializers.PrimaryKeyRelatedField(
+        queryset=Post.objects.all(), required=True,
+    )
+
     likes = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=User.objects.all()
+        many=True, queryset=User.objects.all(), required=False,
     )
 
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ('author', 'post', 'content', 'likes', 'created_at', 'updated_at', )
+
+    def create(self, validated_data):
+        validated_data.pop('likes', None)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data.pop('likes', None)
+        return super().update(instance, validated_data)

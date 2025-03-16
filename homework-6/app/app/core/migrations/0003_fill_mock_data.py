@@ -37,7 +37,7 @@ def delete_mock_data(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0002_comment_likes_post_likes'),
+        ('core', '0002_comment_updated_at_comment_likes_post_likes'),
     ]
 
     operations = [
