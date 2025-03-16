@@ -5,9 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from .models import User, Post, Comment
-from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, PostSerializer, CommentSerializer
+from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, UpdateCommentSerializer
 
-# ViewSet для User
+# View for CRUD operations on User
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated]
@@ -36,18 +36,24 @@ class UserViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-
-# ViewSet для Post
+# View for CRUD operations on Post
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-# ViewSet для Comment
+# View for CRUD operations on Comment
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+    
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CreateCommentSerializer
+        elif self.action in ["update", "partial_update"]:
+            return UpdateCommentSerializer
 
+        return CommentSerializer
 
+# View for likes on Post
 class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -71,7 +77,7 @@ class LikePostView(APIView):
         post.likes.remove(user)
         return Response({"detail": "Like removed successfully."}, status=status.HTTP_200_OK)
 
-
+# View for likes on Comment
 class LikeCommentView(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -9,7 +9,7 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    likes = models.ManyToManyField(User, related_name='liked_comments', blank=True)
+    likes = models.ManyToManyField(User, related_name="liked_comments", blank=True)
 
     def __str__(self):
         return f"Comment by {self.author.username} on {self.post.title}"

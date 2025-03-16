@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 from .models import User, Post, Comment
 
@@ -71,40 +72,52 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
 # Post model serializer (for CRUD operations)
 class PostSerializer(serializers.ModelSerializer):
-    likes = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=User.objects.all(), required=False,
-    )
-
     class Meta:
         model = Post
-        fields = ('author', 'title', 'content', 'likes', 'created_at', 'updated_at', )
+        fields = ("author", "title", "content", "created_at", "updated_at", "likes", )
+        read_only_fields = ("author", "created_at", "updated_at", "likes", )
 
     def create(self, validated_data):
-        validated_data.pop('likes', None)
+        validated_data["author"] = self.context["request"].user
+        validated_data["created_at"] = validated_data["updated_at"] = timezone.now()
+        validated_data["likes"] = []
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        validated_data.pop('likes', None)
+        validated_data["updated_at"] = timezone.now()
         return super().update(instance, validated_data)
 
-# Comment model serializer (for CRUD operations)
+
+# Comment model serializers (for CRUD operations)
 class CommentSerializer(serializers.ModelSerializer):
-    post = serializers.PrimaryKeyRelatedField(
-        queryset=Post.objects.all(), required=True,
-    )
-
-    likes = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=User.objects.all(), required=False,
-    )
-
     class Meta:
         model = Comment
-        fields = ('author', 'post', 'content', 'likes', 'created_at', 'updated_at', )
+        fields = ("post", "author", "content", "created_at", "updated_at", "likes", )
+
+class CreateCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("author", "post", "content", "likes", "created_at", "updated_at", )
+        read_only_fields = ("author", "created_at", "updated_at", "likes", )
+        ref_name = None
 
     def create(self, validated_data):
-        validated_data.pop('likes', None)
+        validated_data["author"] = self.context["request"].user
+        validated_data["post"] = Post.objects.get(id=validated_data["post"])
+        validated_data["likes"] = []
+
+        now_time = timezone.now()
+        validated_data["created_at"] = validated_data["updated_at"] = now_time
+
         return super().create(validated_data)
 
+class UpdateCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("author", "post", "content", "likes", "created_at", "updated_at", )
+        read_only_fields = ("author", "post", "created_at", "updated_at", "likes", )
+        ref_name = None
+
     def update(self, instance, validated_data):
-        validated_data.pop('likes', None)
+        validated_data["updated_at"] = timezone.now()
         return super().update(instance, validated_data)
