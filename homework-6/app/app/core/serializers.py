@@ -97,14 +97,12 @@ class CommentSerializer(serializers.ModelSerializer):
 class CreateCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ("author", "post", "content", "likes", "created_at", "updated_at", )
-        read_only_fields = ("author", "created_at", "updated_at", "likes", )
+        fields = ("author", "post", "content", "created_at", "updated_at", )
+        read_only_fields = ("author", "created_at", "updated_at", )
         ref_name = None
 
     def create(self, validated_data):
         validated_data["author"] = self.context["request"].user
-        validated_data["post"] = Post.objects.get(id=validated_data["post"])
-        validated_data["likes"] = []
 
         now_time = timezone.now()
         validated_data["created_at"] = validated_data["updated_at"] = now_time
