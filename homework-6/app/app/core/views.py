@@ -1,13 +1,31 @@
 from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import User, Post, Comment
-from .serializers import UserSerializer, PostSerializer, CommentSerializer
+from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, PostSerializer, CommentSerializer
 
 # ViewSet для User
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CreateUserSerializer
+        elif self.action in ["update", "partial_update"]:
+            return UpdateUserSerializer
+
+        return UserSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_superuser:
+            return User.objects.all()
+
+        return User.objects.filter(id=user.id)
+
 
 # ViewSet для Post
 class PostViewSet(viewsets.ModelViewSet):
