@@ -67,17 +67,21 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-# Сериализатор для Post
+# Post model serializer (for CRUD operations)
 class PostSerializer(serializers.ModelSerializer):
-    likes = UserSerializer(many=True, read_only=True)
+    likes = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=User.objects.all()
+    )
 
     class Meta:
         model = Post
         fields = '__all__'
 
-# Сериализатор для Comment
+# Comment model serializer (for CRUD operations)
 class CommentSerializer(serializers.ModelSerializer):
-    likes = UserSerializer(many=True, read_only=True)
+    likes = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=User.objects.all()
+    )
 
     class Meta:
         model = Comment
