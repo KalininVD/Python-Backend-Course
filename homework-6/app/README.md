@@ -11,6 +11,8 @@ Currently implemented:
 - Default Swagger documentation for all available endpoints (`/swagger/`)
 - Permissions for CRUD operations on User model (e.g. only superuser can update or delete any user, while other users can only change their own data)
 - Aggregate views for User, Post and Comment models (all posts and comments of a user, sorted by likes or creation/update time, all comments on a post, sorted by likes or creation/update time)
+- Some Top-5 statistics for Posts and Comments (top 5 posts by likes, top 5 posts by comments, top 5 comments by likes)
+- Full User statistics (likes given, likes received, total posts, total comments)
 
 ### Makefile
 

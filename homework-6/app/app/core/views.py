@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
-from django.db.models import Count
+from django.db.models import Count, Sum
+from django.shortcuts import get_object_or_404
 from .models import User, Post, Comment
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, UpdateCommentSerializer
 
@@ -187,3 +188,67 @@ class PostCommentsSortByUpdatedTimeView(ListAPIView):
     def get_queryset(self):
         post_id = self.kwargs.get("post_id")
         return Comment.objects.filter(post_id=post_id).order_by("-updated_at")
+
+# View for User's stats
+class UserStatsView(APIView):
+
+    def get(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+
+        # Подсчёт поставленных лайков
+        likes_given_posts = Post.objects.filter(likes=user).count()
+        likes_given_comments = Comment.objects.filter(likes=user).count()
+
+        # Подсчёт полученных лайков
+        likes_received_posts = (
+            Post.objects.filter(author=user)
+            .annotate(likes_count=Count("likes"))
+            .aggregate(Sum("likes_count"))["likes_count__sum"]
+            or 0
+        )
+        likes_received_comments = (
+            Comment.objects.filter(author=user)
+            .annotate(likes_count=Count("likes"))
+            .aggregate(Sum("likes_count"))["likes_count__sum"]
+            or 0
+        )
+
+        # Подсчёт опубликованных постов и комментариев
+        total_posts = Post.objects.filter(author=user).count()
+        total_comments = Comment.objects.filter(author=user).count()
+
+        return Response(
+            {
+                "user_id": user.id,
+                "username": user.username,
+                "likes_given": likes_given_posts + likes_given_comments,
+                "likes_given_on_posts": likes_given_posts,
+                "likes_given_on_comments": likes_given_comments,
+                "likes_received": likes_received_posts + likes_received_comments,
+                "likes_received_on_posts": likes_received_posts,
+                "likes_received_on_comments": likes_received_comments,
+                "total_posts": total_posts,
+                "total_comments": total_comments,
+            }
+        )
+
+# View for top 5 posts by likes
+class TopPostsView(APIView):
+    def get(self, request):
+        top_posts = Post.objects.annotate(likes_count=Count("likes")).order_by("-likes_count")[:5]
+        serializer = PostSerializer(top_posts, many=True)
+        return Response(serializer.data)
+
+# View for top 5 posts by number of comments
+class MostCommentedPostsView(APIView):
+    def get(self, request):
+        top_posts = Post.objects.annotate(comments_count=Count("comment")).order_by("-comments_count")[:5]
+        serializer = PostSerializer(top_posts, many=True)
+        return Response(serializer.data)
+
+# View for top 5 comments by likes
+class TopCommentsView(APIView):
+    def get(self, request):
+        top_comments = Comment.objects.annotate(likes_count=Count("likes")).order_by("-likes_count")[:5]
+        serializer = CommentSerializer(top_comments, many=True)
+        return Response(serializer.data)

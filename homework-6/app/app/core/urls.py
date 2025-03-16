@@ -6,6 +6,8 @@ from .views import (
     UserPostsView, UserPostsSortByLikesView, UserPostsSortByUpdatedTimeView,
     UserCommentsView, UserCommentsSortByLikesView, UserCommentsSortByUpdatedTimeView,
     PostCommentsView, PostCommentsSortByLikesView, PostCommentsSortByUpdatedTimeView,
+
+    UserStatsView, TopPostsView, MostCommentedPostsView, TopCommentsView,
 )
 
 router = DefaultRouter()
@@ -30,4 +32,9 @@ urlpatterns = [
     path("posts/<int:post_id>/comments/", PostCommentsView.as_view(), name="post-comments"),
     path("posts/<int:post_id>/comments/sort_by_likes/", PostCommentsSortByLikesView.as_view(), name="post-comments-likes"),
     path("posts/<int:post_id>/comments/sort_by_time/", PostCommentsSortByUpdatedTimeView.as_view(), name="post-comments-time"),
+
+    path("users/<int:user_id>/stats/", UserStatsView.as_view(), name="user-stats"),
+    path("posts/most_liked/", TopPostsView.as_view(), name="top-posts"),
+    path("posts/most_commented/", MostCommentedPostsView.as_view(), name="most-commented-posts"),
+    path("comments/most_liked/", TopCommentsView.as_view(), name="top-comments"),
 ]
