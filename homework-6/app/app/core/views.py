@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
 from .models import User, Post, Comment
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, PostSerializer, CommentSerializer
 
@@ -25,6 +26,14 @@ class UserViewSet(viewsets.ModelViewSet):
             return User.objects.all()
 
         return User.objects.filter(id=user.id)
+
+    @swagger_auto_schema(request_body=CreateUserSerializer)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(request_body=UpdateUserSerializer)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
 
 
 # ViewSet для Post

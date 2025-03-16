@@ -17,6 +17,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "username", "email", "password", "is_superuser", "is_staff", )
+        ref_name = None
 
     def validate(self, attrs):
         request = self.context.get("request")
@@ -57,6 +58,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username", "email", "password", )
+        ref_name = None
 
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
