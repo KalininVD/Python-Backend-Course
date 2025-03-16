@@ -1,9 +1,11 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
+from django.db.models import Count
 from .models import User, Post, Comment
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, UpdateCommentSerializer
 
@@ -53,6 +55,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
         return CommentSerializer
 
+
 # View for likes on Post
 class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
@@ -100,3 +103,87 @@ class LikeCommentView(APIView):
 
         comment.likes.remove(user)
         return Response({"detail": "Like removed successfully."}, status=status.HTTP_200_OK)
+
+# View for User's posts and comments
+class UserPostsView(ListAPIView):
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id")
+        return Post.objects.filter(author_id=user_id).order_by("-created_at")
+
+# View for sorting User's posts by likes
+class UserPostsSortByLikesView(ListAPIView):
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id")
+        return (
+            Post.objects.filter(author_id=user_id)
+            .annotate(likes_count=Count("likes"))
+            .order_by("-likes_count")
+        )
+
+# View for sorting User's posts by updated time
+class UserPostsSortByUpdatedTimeView(ListAPIView):
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id")
+        return Post.objects.filter(author_id=user_id).order_by("-updated_at")
+
+# View for User's comments
+class UserCommentsView(ListAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id")
+        return Comment.objects.filter(author_id=user_id).order_by("-created_at")
+
+# View for sorting User's comments by likes
+class UserCommentsSortByLikesView(ListAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id")
+        return (
+            Comment.objects.filter(author_id=user_id)
+            .annotate(likes_count=Count("likes"))
+            .order_by("-likes_count")
+        )
+
+# View for sorting User's comments by updated time
+class UserCommentsSortByUpdatedTimeView(ListAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id")
+        return Comment.objects.filter(author_id=user_id).order_by("-updated_at")
+
+# View for comments on a post
+class PostCommentsView(ListAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        post_id = self.kwargs.get("post_id")
+        return Comment.objects.filter(post_id=post_id).order_by("created_at")
+
+# View for sorting comments on a post by likes
+class PostCommentsSortByLikesView(ListAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        post_id = self.kwargs.get("post_id")
+        return (
+            Comment.objects.filter(post_id=post_id)
+            .annotate(likes_count=Count("likes"))
+            .order_by("-likes_count")
+        )
+
+# View for sorting comments on a post by updated time
+class PostCommentsSortByUpdatedTimeView(ListAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        post_id = self.kwargs.get("post_id")
+        return Comment.objects.filter(post_id=post_id).order_by("-updated_at")
