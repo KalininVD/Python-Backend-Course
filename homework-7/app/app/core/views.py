@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny, SAFE_METHODS
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,7 +13,6 @@ from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSeriali
 # View for CRUD operations on User
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -39,15 +38,27 @@ class UserViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
+    def get_permissions(self):
+        if self.action == "create":
+            return [AllowAny()]
+
+        return [IsAuthenticated()]
+
 # View for CRUD operations on Post
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
+    def get_permissions(self):
+        if self.request.method not in SAFE_METHODS:
+            return [IsAuthenticated()]
+
+        return [AllowAny()]
+
 # View for CRUD operations on Comment
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
-    
+
     def get_serializer_class(self):
         if self.action == "create":
             return CreateCommentSerializer
@@ -55,6 +66,12 @@ class CommentViewSet(viewsets.ModelViewSet):
             return UpdateCommentSerializer
 
         return CommentSerializer
+
+    def get_permissions(self):
+        if self.request.method not in SAFE_METHODS:
+            return [IsAuthenticated()]
+
+        return [AllowAny()]
 
 
 # View for likes on Post
@@ -105,6 +122,7 @@ class LikeCommentView(APIView):
         comment.likes.remove(user)
         return Response({"detail": "Like removed successfully."}, status=status.HTTP_200_OK)
 
+
 # View for User's posts and comments
 class UserPostsView(ListAPIView):
     serializer_class = PostSerializer
@@ -132,6 +150,7 @@ class UserPostsSortByUpdatedTimeView(ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs.get("user_id")
         return Post.objects.filter(author_id=user_id).order_by("-updated_at")
+
 
 # View for User's comments
 class UserCommentsView(ListAPIView):
@@ -161,6 +180,7 @@ class UserCommentsSortByUpdatedTimeView(ListAPIView):
         user_id = self.kwargs.get("user_id")
         return Comment.objects.filter(author_id=user_id).order_by("-updated_at")
 
+
 # View for comments on a post
 class PostCommentsView(ListAPIView):
     serializer_class = CommentSerializer
@@ -188,6 +208,7 @@ class PostCommentsSortByUpdatedTimeView(ListAPIView):
     def get_queryset(self):
         post_id = self.kwargs.get("post_id")
         return Comment.objects.filter(post_id=post_id).order_by("-updated_at")
+
 
 # View for User's stats
 class UserStatsView(APIView):
@@ -231,6 +252,7 @@ class UserStatsView(APIView):
                 "total_comments": total_comments,
             }
         )
+
 
 # View for top 5 posts by likes
 class TopPostsView(APIView):
