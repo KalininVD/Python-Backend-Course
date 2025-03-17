@@ -16,6 +16,10 @@ router.register("posts", PostViewSet)
 router.register("comments", CommentViewSet)
 
 urlpatterns = [
+    path("posts/most_liked/", TopPostsView.as_view(), name="top-posts"),
+    path("posts/most_commented/", MostCommentedPostsView.as_view(), name="most-commented-posts"),
+    path("comments/most_liked/", TopCommentsView.as_view(), name="top-comments"),
+
     path("", include(router.urls)),
 
     path("posts/<int:post_id>/like/", LikePostView.as_view(), name="like_post"),
@@ -34,7 +38,4 @@ urlpatterns = [
     path("posts/<int:post_id>/comments/sort_by_time/", PostCommentsSortByUpdatedTimeView.as_view(), name="post-comments-time"),
 
     path("users/<int:user_id>/stats/", UserStatsView.as_view(), name="user-stats"),
-    path("posts/most_liked/", TopPostsView.as_view(), name="top-posts"),
-    path("posts/most_commented/", MostCommentedPostsView.as_view(), name="most-commented-posts"),
-    path("comments/most_liked/", TopCommentsView.as_view(), name="top-comments"),
 ]

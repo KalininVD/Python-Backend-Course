@@ -242,7 +242,11 @@ class TopPostsView(APIView):
 # View for top 5 posts by number of comments
 class MostCommentedPostsView(APIView):
     def get(self, request):
-        top_posts = Post.objects.annotate(comments_count=Count("comment")).order_by("-comments_count")[:5]
+        top_posts = (
+            Post.objects
+            .annotate(comments_count=Count("comments", distinct=True))
+            .order_by("-comments_count")[:5]
+        )
         serializer = PostSerializer(top_posts, many=True)
         return Response(serializer.data)
 
