@@ -1,4 +1,4 @@
-## Homework 6
+## Homework 7
 Currently implemented:
 - Django app ([/app folder](./app))
 - Docker file with Docker configuration ([Dockerfile](./Dockerfile))
