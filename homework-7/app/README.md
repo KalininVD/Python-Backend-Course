@@ -13,6 +13,7 @@ Currently implemented:
 - Aggregate views for User, Post and Comment models (all posts and comments of a user, sorted by likes or creation/update time, all comments on a post, sorted by likes or creation/update time)
 - Some Top-5 statistics for Posts and Comments (top 5 posts by likes, top 5 posts by comments, top 5 comments by likes)
 - Full User statistics (likes given, likes received, total posts, total comments)
+- Special SQL script for filling the database with lots of random data for testing every API endpoint
 
 ### Makefile
 
@@ -39,3 +40,5 @@ You can modify that file before running `make migrate` to change the data to be 
 If the migration is already applied, you can run `docker exec -it django_app python manage.py migrate core 0002_comment_updated_at_comment_likes_post_likes` to reload the app state to the state on the previous migration, where `django_app` is _container_name_ of the web service in [docker-compose.yml](./docker-compose.yml) file and `0002_comment_updated_at_comment_likes_post_likes` is the name of the previous migration before the one with mock data (see [migration files folder](./app/core/migrations)).
 
 Then you can modify the mock data in the migration file and run `make migrate` again to apply the changes. Make sure to define both `fill_mock_data` and `delete_mock_data` functions in the migration file properly to be able to undo the changes in the future.
+
+**Updated:** the last available migration file is [0004_fill_random_data.py](./app/core/migrations/0004_fill_random_data.py), which generates random data for testing the app (it may take time). So in case of applying all migrations, there will be lots of data in the database and you can use it for testing every API endpoint.
