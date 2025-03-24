@@ -4,3 +4,6 @@ python-dotenv
 Pillow
 djangorestframework
 drf-yasg
+pytest
+django-pytest
+pytest-django
