@@ -14,6 +14,7 @@ Currently implemented:
 - Some Top-5 statistics for Posts and Comments (top 5 posts by likes, top 5 posts by comments, top 5 comments by likes)
 - Full User statistics (likes given, likes received, total posts, total comments)
 - Special SQL script for filling the database with lots of random data for testing every API endpoint
+- Pytest test script for testing User create endpoint
 
 ### Makefile
 
