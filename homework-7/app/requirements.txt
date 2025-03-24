@@ -1,0 +1,9 @@
+django
+psycopg2-binary
+python-dotenv
+Pillow
+djangorestframework
+drf-yasg
+pytest
+django-pytest
+pytest-django
